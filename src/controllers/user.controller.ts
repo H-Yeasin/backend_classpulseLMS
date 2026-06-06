@@ -231,12 +231,14 @@ export const registerUser = catchAsync(async (req: Request, res: Response) => {
 
   const adminUsers = await User.findOne({ role: "admin" });
 
-  await createNotification({
-    to: new mongoose.Types.ObjectId(adminUsers!._id as any),
-    message: `New user registered: ${username}`,
-    type: "user",
-    id: user._id,
-  });
+  if (adminUsers) {
+    await createNotification({
+      to: new mongoose.Types.ObjectId(adminUsers._id as any),
+      message: `New user registered: ${username}`,
+      type: "user",
+      id: user._id,
+    });
+  }
 
   res.status(201).json({
     success: true,
@@ -715,12 +717,14 @@ export const assignTeacherToSchool = catchAsync(
 
     const adminUsers = await User.findOne({ role: "admin" });
 
-    await createNotification({
-      to: new mongoose.Types.ObjectId(adminUsers!._id as any),
-      message: `Teacher assigned to school: ${teacher.username}`,
-      type: "user",
-      id: teacher._id,
-    });
+    if (adminUsers) {
+      await createNotification({
+        to: new mongoose.Types.ObjectId(adminUsers._id as any),
+        message: `Teacher assigned to school: ${teacher.username}`,
+        type: "user",
+        id: teacher._id,
+      });
+    }
 
     return sendResponse(res, {
       statusCode: httpStatus.OK,
