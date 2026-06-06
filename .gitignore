@@ -1,0 +1,9 @@
+node_modules
+dist
+.env.*.env
+config.bat
+.env
+
+# Ignore uploads but keep the directory
+uploads/*
+!uploads/.gitkeep

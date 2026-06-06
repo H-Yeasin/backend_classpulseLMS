@@ -1,0 +1,40 @@
+
+> opalmer-backend@1.0.0 dev
+> ts-node-dev --respawn --transpile-only src/server.ts
+
+[INFO] 12:17:26 ts-node-dev ver. 2.0.0 (using ts-node ver. 10.9.2, typescript ver. 5.9.2)
+MongoDB connected
+[ERROR] 12:17:31 Error: listen EADDRINUSE: address already in use 0.0.0.0:5000
+[INFO] 14:18:05 Restarting: C:\Users\Yeasin\projects\opalmer\opalmer-backend\src\controllers\user.controller.ts has been modified
+MongoDB connected
+[ERROR] 14:18:11 Error: listen EADDRINUSE: address already in use 0.0.0.0:5000
+[INFO] 14:18:12 Restarting: C:\Users\Yeasin\projects\opalmer\opalmer-backend\src\routes\user.routes.ts has been modified
+MongoDB connected
+[ERROR] 14:18:14 Error: listen EADDRINUSE: address already in use 0.0.0.0:5000
+[INFO] 14:18:16 Restarting: C:\Users\Yeasin\projects\opalmer\opalmer-backend\src\routes\school.router.ts has been modified
+MongoDB connected
+Server is running at http://localhost:5000
+[INFO] 14:18:23 Restarting: C:\Users\Yeasin\projects\opalmer\opalmer-backend\src\controllers\school.controller.ts has been modified
+MongoDB connected
+Server is running at http://localhost:5000
+[INFO] 14:18:28 Restarting: C:\Users\Yeasin\projects\opalmer\opalmer-backend\src\controllers\parentsChild.controller.ts has been modified
+MongoDB connected
+[ERROR] 14:18:30 Error: listen EADDRINUSE: address already in use 0.0.0.0:5000
+[INFO] 14:19:07 Restarting: C:\Users\Yeasin\projects\opalmer\opalmer-backend\src\controllers\user.controller.ts has been modified
+MongoDB connected
+[ERROR] 14:19:10 Error: listen EADDRINUSE: address already in use 0.0.0.0:5000
+[INFO] 14:22:21 Restarting: C:\Users\Yeasin\projects\opalmer\opalmer-backend\src\controllers\user.controller.ts has been modified
+MongoDB connected
+[ERROR] 14:22:25 Error: listen EADDRINUSE: address already in use 0.0.0.0:5000
+[INFO] 15:10:30 Restarting: C:\Users\Yeasin\projects\opalmer\opalmer-backend\src\controllers\class.controller.ts has been modified
+MongoDB connected
+[ERROR] 15:10:34 Error: listen EADDRINUSE: address already in use 0.0.0.0:5000
+[INFO] 15:11:14 Restarting: C:\Users\Yeasin\projects\opalmer\opalmer-backend\src\controllers\class.controller.ts has been modified
+MongoDB connected
+[ERROR] 15:11:15 Error: listen EADDRINUSE: address already in use 0.0.0.0:5000
+[INFO] 15:16:45 Restarting: C:\Users\Yeasin\projects\opalmer\opalmer-backend\src\controllers\quiz.controller.ts has been modified
+MongoDB connected
+[ERROR] 15:16:47 Error: listen EADDRINUSE: address already in use 0.0.0.0:5000
+[INFO] 15:16:48 Restarting: C:\Users\Yeasin\projects\opalmer\opalmer-backend\src\routes\quiz.routes.ts has been modified
+MongoDB connected
+Server is running at http://localhost:5000

@@ -1,0 +1,1237 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Opalmer Audio Calling</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #060a13;
+        --surface: rgba(13, 20, 36, 0.9);
+        --border: rgba(112, 243, 198, 0.16);
+        --accent: #68f4c7;
+        --danger: #ff6b8a;
+        --warning: #ffd46f;
+        --text: rgba(255, 255, 255, 0.92);
+        --muted: rgba(255, 255, 255, 0.58);
+        --display: 'Syne', sans-serif;
+        --mono: 'DM Mono', monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: var(--mono);
+        color: var(--text);
+        background:
+          radial-gradient(
+            circle at 12% 10%,
+            rgba(104, 244, 199, 0.14),
+            transparent 26%
+          ),
+          radial-gradient(
+            circle at 88% 14%,
+            rgba(119, 210, 255, 0.12),
+            transparent 28%
+          ),
+          var(--bg);
+      }
+
+      .wrap {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 22px;
+        display: grid;
+        gap: 16px;
+      }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 16px;
+      }
+
+      .top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+        font-family: var(--display);
+      }
+      p {
+        margin: 8px 0 0;
+        color: var(--muted);
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 8px 12px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--danger);
+      }
+      .dot.on {
+        background: var(--accent);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 340px 1fr 300px;
+        gap: 14px;
+      }
+
+      .stack {
+        display: grid;
+        gap: 12px;
+      }
+      .label {
+        color: var(--muted);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+
+      input {
+        width: 100%;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 10px 12px;
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text);
+        font: inherit;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      button {
+        border: 1px solid transparent;
+        border-radius: 12px;
+        padding: 10px 14px;
+        font: inherit;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .primary {
+        background: linear-gradient(
+          135deg,
+          rgba(104, 244, 199, 0.95),
+          rgba(126, 213, 255, 0.9)
+        );
+        color: #06101e;
+      }
+      .secondary {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text);
+        border-color: var(--border);
+      }
+      .danger {
+        background: #ffd1dc;
+        color: #3b0a17;
+        border-color: #ff9cb6;
+      }
+
+      .me {
+        display: grid;
+        grid-template-columns: 48px 1fr;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(104, 244, 199, 0.15);
+        color: var(--accent);
+        display: grid;
+        place-items: center;
+        font-family: var(--display);
+        font-weight: 700;
+      }
+
+      .contacts {
+        max-height: 420px;
+        overflow: auto;
+        display: grid;
+        gap: 8px;
+      }
+
+      .contact {
+        display: grid;
+        grid-template-columns: 40px 1fr;
+        gap: 10px;
+        align-items: center;
+        padding: 10px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.04);
+        cursor: pointer;
+      }
+
+      .contact.active {
+        border-color: rgba(104, 244, 199, 0.3);
+        background: rgba(104, 244, 199, 0.1);
+      }
+
+      .contact .name {
+        margin: 0;
+        color: var(--text);
+        font-size: 13px;
+      }
+      .contact .sub {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 11px;
+      }
+
+      .phase {
+        display: inline-flex;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 7px 12px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .phase.warn {
+        color: var(--warning);
+      }
+      .phase.good {
+        color: var(--accent);
+      }
+      .phase.bad {
+        color: #ffc1cf;
+      }
+
+      .log-box {
+        max-height: 280px;
+        overflow: auto;
+        display: grid;
+        gap: 8px;
+      }
+
+      .log {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .strong {
+        color: var(--text);
+        font-weight: 700;
+      }
+
+      .incoming {
+        position: fixed;
+        right: 18px;
+        bottom: 18px;
+        width: min(380px, calc(100vw - 36px));
+        display: none;
+        z-index: 10;
+      }
+      .incoming.show {
+        display: grid;
+      }
+
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 14px;
+        transform: translateX(-50%);
+        display: none;
+        z-index: 20;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 10px 14px;
+        background: rgba(8, 13, 25, 0.95);
+        font-size: 12px;
+      }
+      .toast.show {
+        display: block;
+      }
+
+      .muted {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      @media (max-width: 1120px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <section class="card top">
+        <div>
+          <h1>Opalmer Audio Calling</h1>
+          <p>1-to-1 website calling with Socket.IO + WebRTC</p>
+        </div>
+        <div class="status">
+          <span class="dot" id="socketDot"></span
+          ><span id="socketStatus">Disconnected</span>
+        </div>
+      </section>
+
+      <section class="grid">
+        <aside
+          class="card stack"
+          aria-label="Authentication and contacts panel"
+        >
+          <div>
+            <h2>Sign in</h2>
+            <p>Use your existing site account.</p>
+          </div>
+          <label class="label" for="loginId">User ID</label>
+          <input id="loginId" placeholder="Account Id" />
+          <label class="label" for="loginPassword">Password</label>
+          <input id="loginPassword" type="password" placeholder="Password" />
+          <div class="actions">
+            <button class="primary" id="loginBtn">Sign in</button>
+            <button class="secondary" id="logoutBtn" type="button">
+              Sign out
+            </button>
+          </div>
+          <div class="muted" id="authHint">No account loaded.</div>
+
+          <div class="card" id="meCard" style="display: none; padding: 12px">
+            <div class="me">
+              <div class="avatar" id="meAvatar">?</div>
+              <div>
+                <h3 id="meName">—</h3>
+                <p id="meMeta" class="muted">—</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="label" style="margin-bottom: 8px">Contacts</div>
+            <input
+              id="contactFilter"
+              placeholder="Filter contacts"
+              style="margin-bottom: 10px"
+            />
+            <div class="contacts" id="contacts"></div>
+          </div>
+        </aside>
+
+        <main class="card stack">
+          <div
+            class="top"
+            style="justify-content: space-between; align-items: flex-start"
+          >
+            <div>
+              <div class="phase" id="callPhase">Idle</div>
+              <h2 style="margin-top: 10px">Call controls</h2>
+              <p>Pick one contact and start an audio call.</p>
+            </div>
+          </div>
+
+          <div class="card" style="padding: 12px">
+            <div class="me">
+              <div class="avatar" id="selectedAvatar">?</div>
+              <div>
+                <h3 id="selectedName">Select a contact</h3>
+                <p id="selectedMeta" class="muted">
+                  One-to-one calls only, direct room required.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="primary" id="startCallBtn" type="button">
+              Start audio call
+            </button>
+            <button class="secondary" id="joinRoomBtn" type="button">
+              Join room
+            </button>
+            <button class="danger" id="endCallBtn" type="button">
+              End call
+            </button>
+          </div>
+
+          <div>
+            <div class="label" style="margin-bottom: 8px">Event log</div>
+            <div class="log-box" id="logs"></div>
+          </div>
+        </main>
+
+        <aside
+          class="card stack"
+          aria-label="Call details and incoming actions panel"
+        >
+          <div>
+            <div class="label">Selected contact</div>
+            <div id="activeContact" class="strong">No contact selected</div>
+          </div>
+          <div>
+            <div class="label">Active room</div>
+            <div id="activeRoom" class="strong">No room yet</div>
+          </div>
+          <div>
+            <div class="label">Call log ID</div>
+            <div id="callLogId" class="strong">—</div>
+            <div id="callLogState" class="muted">No call log created yet.</div>
+          </div>
+          <div>
+            <div class="label">Media status</div>
+            <div id="mediaState" class="muted">Microphone not opened.</div>
+          </div>
+          <div>
+            <div class="label">Incoming call</div>
+            <div id="incomingTitle" class="strong">None</div>
+            <div id="incomingMeta" class="muted">No active ring.</div>
+            <div class="actions" style="margin-top: 10px">
+              <button class="primary" id="acceptBtn" type="button">
+                Accept
+              </button>
+              <button class="danger" id="declineBtn" type="button">
+                Decline
+              </button>
+            </div>
+          </div>
+        </aside>
+      </section>
+    </div>
+
+    <section class="card incoming" id="incomingPanel">
+      <h3>Incoming audio call</h3>
+      <p id="incomingText">You have an incoming call.</p>
+      <div class="actions" style="margin-top: 10px">
+        <button class="primary" id="acceptInboundBtn" type="button">
+          Accept
+        </button>
+        <button class="danger" id="declineInboundBtn" type="button">
+          Decline
+        </button>
+      </div>
+    </section>
+
+    <div class="toast" id="toast"></div>
+
+    <audio id="remoteAudio" autoplay playsinline></audio>
+    <audio
+      id="localAudio"
+      autoplay
+      muted
+      playsinline
+      style="display: none"
+    ></audio>
+
+    <script src="https://cdn.jsdelivr.net/npm/simple-peer@9.11.1/simplepeer.min.js"></script>
+    <script>
+      function resolveBackendOrigin() {
+        const params = new URLSearchParams(globalThis.location.search)
+        const override =
+          params.get('apiOrigin') || localStorage.getItem('opalmer_api_origin')
+
+        if (override) {
+          return override.replace(/\/$/, '')
+        }
+
+        if (
+          globalThis.location.hostname === 'localhost' ||
+          globalThis.location.hostname === '127.0.0.1'
+        ) {
+          if (
+            globalThis.location.port === '5000' ||
+            globalThis.location.port === ''
+          ) {
+            return globalThis.location.origin
+          }
+
+          return `${globalThis.location.protocol}//${globalThis.location.hostname}:5000`
+        }
+
+        return globalThis.location.origin
+      }
+
+      const backendOrigin = resolveBackendOrigin()
+      const apiBase = `${backendOrigin}/api/v1`
+
+      function ensureSocketIoClient() {
+        if (globalThis.io) return Promise.resolve()
+
+        return new Promise((resolve, reject) => {
+          const script = document.createElement('script')
+          script.src = `${backendOrigin}/socket.io/socket.io.js`
+          script.onload = () => resolve()
+          script.onerror = () =>
+            reject(new Error('Unable to load Socket.IO client from backend'))
+          document.head.appendChild(script)
+        })
+      }
+
+      const state = {
+        token: localStorage.getItem('opalmer_call_token') || '',
+        me: null,
+        socket: null,
+        contacts: [],
+        selectedContact: null,
+        currentRoomId: '',
+        currentCallLogId: '',
+        localStream: null,
+        peers: {},
+        incomingCall: null,
+        joinedRoom: false,
+      }
+
+      const els = {
+        socketDot: document.getElementById('socketDot'),
+        socketStatus: document.getElementById('socketStatus'),
+        authHint: document.getElementById('authHint'),
+        meCard: document.getElementById('meCard'),
+        meAvatar: document.getElementById('meAvatar'),
+        meName: document.getElementById('meName'),
+        meMeta: document.getElementById('meMeta'),
+        loginBtn: document.getElementById('loginBtn'),
+        logoutBtn: document.getElementById('logoutBtn'),
+        loginId: document.getElementById('loginId'),
+        loginPassword: document.getElementById('loginPassword'),
+        contacts: document.getElementById('contacts'),
+        contactFilter: document.getElementById('contactFilter'),
+        selectedAvatar: document.getElementById('selectedAvatar'),
+        selectedName: document.getElementById('selectedName'),
+        selectedMeta: document.getElementById('selectedMeta'),
+        activeContact: document.getElementById('activeContact'),
+        activeRoom: document.getElementById('activeRoom'),
+        callPhase: document.getElementById('callPhase'),
+        startCallBtn: document.getElementById('startCallBtn'),
+        joinRoomBtn: document.getElementById('joinRoomBtn'),
+        endCallBtn: document.getElementById('endCallBtn'),
+        logs: document.getElementById('logs'),
+        incomingPanel: document.getElementById('incomingPanel'),
+        incomingTitle: document.getElementById('incomingTitle'),
+        incomingMeta: document.getElementById('incomingMeta'),
+        incomingText: document.getElementById('incomingText'),
+        acceptBtn: document.getElementById('acceptBtn'),
+        declineBtn: document.getElementById('declineBtn'),
+        acceptInboundBtn: document.getElementById('acceptInboundBtn'),
+        declineInboundBtn: document.getElementById('declineInboundBtn'),
+        callLogId: document.getElementById('callLogId'),
+        callLogState: document.getElementById('callLogState'),
+        mediaState: document.getElementById('mediaState'),
+        remoteAudio: document.getElementById('remoteAudio'),
+        localAudio: document.getElementById('localAudio'),
+        toast: document.getElementById('toast'),
+      }
+
+      function initials(name) {
+        return (
+          (name || '?')
+            .trim()
+            .split(/\s+/)
+            .map((n) => n[0] || '')
+            .join('')
+            .slice(0, 2)
+            .toUpperCase() || '?'
+        )
+      }
+
+      function showToast(message) {
+        els.toast.textContent = message
+        els.toast.classList.add('show')
+        clearTimeout(showToast._t)
+        showToast._t = setTimeout(
+          () => els.toast.classList.remove('show'),
+          3000,
+        )
+      }
+
+      function pushLog(title, detail) {
+        const row = document.createElement('div')
+        row.className = 'log'
+        row.innerHTML = `<span class="strong">${title}</span><br>${detail}`
+        els.logs.prepend(row)
+      }
+
+      function setPhase(phase, tone = '') {
+        els.callPhase.textContent = phase
+        els.callPhase.className = `phase ${tone}`.trim()
+      }
+
+      function setSocketState(on) {
+        els.socketDot.classList.toggle('on', on)
+        els.socketStatus.textContent = on ? 'Connected' : 'Disconnected'
+      }
+
+      function setCurrentCallLog(id, text = '') {
+        state.currentCallLogId = id || ''
+        els.callLogId.textContent = id || '—'
+        els.callLogState.textContent =
+          text || (id ? 'Call log active.' : 'No call log created yet.')
+      }
+
+      function updateRoom(roomId) {
+        state.currentRoomId = roomId || ''
+        els.activeRoom.textContent = roomId || 'No room yet'
+      }
+
+      function updateMeCard() {
+        if (!state.me) {
+          els.meCard.style.display = 'none'
+          els.authHint.textContent = 'No account loaded.'
+          return
+        }
+        els.meCard.style.display = 'block'
+        els.meAvatar.textContent = initials(state.me.username)
+        els.meName.textContent = state.me.username || 'Unknown user'
+        els.meMeta.textContent = `Id: ${state.me.Id || 'n/a'} · ${state.me.type || 'user'} · ${state.me.role || 'member'}`
+        els.authHint.textContent = `${state.me.username || 'Signed in'} is ready for calls.`
+      }
+
+      function updateSelectedContact(contact) {
+        state.selectedContact = contact || null
+        if (!contact) {
+          els.selectedAvatar.textContent = '?'
+          els.selectedName.textContent = 'Select a contact'
+          els.selectedMeta.textContent =
+            'One-to-one calls only, direct room required.'
+          els.activeContact.textContent = 'No contact selected'
+          renderContacts()
+          return
+        }
+        els.selectedAvatar.textContent = initials(contact.username)
+        els.selectedName.textContent = contact.username || 'Unknown contact'
+        els.selectedMeta.textContent = `${contact.type || 'user'} · ${contact.role || 'member'} · ${contact.phoneNumber || contact.email || contact.Id || 'No extra info'}`
+        els.activeContact.textContent = contact.username || 'Selected contact'
+        renderContacts()
+      }
+
+      function getContactId(contact) {
+        if (!contact) return ''
+        return contact._id || contact.id || ''
+      }
+
+      function renderContacts() {
+        const query = els.contactFilter.value.trim().toLowerCase()
+        const list = state.contacts.filter((c) => {
+          if (!query) return true
+          return [c.username, c.type, c.role, c.Id, c.email, c.phoneNumber]
+            .filter(Boolean)
+            .some((v) => String(v).toLowerCase().includes(query))
+        })
+
+        els.contacts.innerHTML = ''
+        if (!list.length) {
+          const empty = document.createElement('div')
+          empty.className = 'log'
+          empty.textContent = state.token
+            ? 'No contacts found.'
+            : 'Sign in to load contacts.'
+          els.contacts.appendChild(empty)
+          return
+        }
+
+        list.forEach((contact) => {
+          const contactId = getContactId(contact)
+          const selectedContactId = getContactId(state.selectedContact)
+          const row = document.createElement('div')
+          row.className = `contact${selectedContactId && selectedContactId === contactId ? ' active' : ''}`
+          row.innerHTML = `
+            <div class="avatar" style="width:40px;height:40px;border-radius:10px;">${initials(contact.username)}</div>
+            <div>
+              <p class="name">${contact.username || 'Unknown user'}</p>
+              <p class="sub">${[contact.type, contact.role].filter(Boolean).join(' · ') || 'Contact'}</p>
+            </div>
+          `
+          row.addEventListener('click', () => updateSelectedContact(contact))
+          els.contacts.appendChild(row)
+        })
+      }
+
+      function resetPeers() {
+        Object.values(state.peers).forEach((peer) => {
+          try {
+            peer.destroy()
+          } catch (err) {
+            console.warn('Failed to destroy peer during reset', err)
+          }
+        })
+        state.peers = {}
+      }
+
+      function stopLocalAudio() {
+        if (!state.localStream) return
+        state.localStream.getTracks().forEach((t) => t.stop())
+        state.localStream = null
+        els.localAudio.srcObject = null
+        els.mediaState.textContent = 'Microphone not opened.'
+      }
+
+      async function ensureLocalAudio() {
+        if (state.localStream) return state.localStream
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+          video: false,
+        })
+        state.localStream = stream
+        els.localAudio.srcObject = stream
+        els.mediaState.textContent = 'Microphone ready for audio call.'
+        return stream
+      }
+
+      function attachRemoteStream(stream) {
+        els.remoteAudio.srcObject = stream
+        els.remoteAudio.play().catch(() => {})
+        setPhase('Active', 'good')
+        pushLog('Peer connected', 'Remote audio stream attached.')
+      }
+
+      function cleanupCall(message) {
+        resetPeers()
+        els.remoteAudio.srcObject = null
+        updateRoom('')
+        setCurrentCallLog('', 'No call log created yet.')
+        state.joinedRoom = false
+        state.incomingCall = null
+        els.incomingPanel.classList.remove('show')
+        stopLocalAudio()
+        setPhase('Ended')
+        if (message) pushLog('Call finished', message)
+      }
+
+      async function api(path, options = {}) {
+        const headers = new Headers(options.headers || {})
+        if (state.token) headers.set('Authorization', `Bearer ${state.token}`)
+        if (options.body && !headers.has('Content-Type'))
+          headers.set('Content-Type', 'application/json')
+        const res = await fetch(`${apiBase}${path}`, { ...options, headers })
+        const data = await res.json().catch(() => ({}))
+        if (!res.ok || data.success === false) {
+          throw new Error(
+            data.message || data.error || `Request failed (${res.status})`,
+          )
+        }
+        return data
+      }
+
+      function createPeer(otherSocketId, initiator) {
+        if (!state.localStream) return null
+        if (state.peers[otherSocketId]) {
+          try {
+            state.peers[otherSocketId].destroy()
+          } catch (err) {
+            console.warn('Failed to destroy previous peer instance', err)
+          }
+        }
+
+        const peer = new SimplePeer({
+          initiator,
+          trickle: false,
+          stream: state.localStream,
+        })
+        peer.on('signal', (signal) => {
+          if (!state.socket) return
+          if (initiator) {
+            state.socket.emit('sending-signal', {
+              userToSignal: otherSocketId,
+              callerId: state.socket.id,
+              signal,
+            })
+          } else {
+            state.socket.emit('returning-signal', {
+              callerId: otherSocketId,
+              signal,
+            })
+          }
+        })
+        peer.on('stream', attachRemoteStream)
+        peer.on('close', () => {
+          delete state.peers[otherSocketId]
+        })
+        peer.on('error', (err) => {
+          pushLog('Peer error', err.message || 'WebRTC peer failed.')
+          setPhase('Failed', 'bad')
+        })
+
+        state.peers[otherSocketId] = peer
+        return peer
+      }
+
+      function bindSocketEvents() {
+        if (!state.socket) return
+
+        state.socket.on('all-users', (users) => {
+          pushLog(
+            'Room update',
+            users.length
+              ? `Peers in room: ${users.join(', ')}`
+              : 'No peers in room yet.',
+          )
+          users.forEach((id) => createPeer(id, true))
+        })
+
+        state.socket.on('user-joined', (id) => {
+          pushLog('User joined', `Socket ${id} joined the room.`)
+          createPeer(id, false)
+        })
+
+        state.socket.on('user-signal', (payload) => {
+          const peer = state.peers[payload.callerId]
+          if (peer) peer.signal(payload.signal)
+        })
+
+        state.socket.on('receiving-returned-signal', (payload) => {
+          const peer = state.peers[payload.id]
+          if (peer) peer.signal(payload.signal)
+        })
+
+        state.socket.on('user-left', (id) => {
+          if (state.peers[id]) {
+            try {
+              state.peers[id].destroy()
+            } catch (err) {
+              console.warn('Failed to destroy peer on user-left', err)
+            }
+            delete state.peers[id]
+          }
+          pushLog('User left', `Socket ${id} left the room.`)
+        })
+
+        state.socket.on('incoming-call', async (payload) => {
+          state.incomingCall = payload
+          els.incomingTitle.textContent = `Call from ${payload.caller?.name || 'Unknown caller'}`
+          els.incomingMeta.textContent = `Room ${payload.roomId} · ${payload.callType || 'audio'} call`
+          els.incomingText.textContent = `Incoming one-to-one call from ${payload.caller?.name || 'Unknown caller'}.`
+          els.incomingPanel.classList.add('show')
+          setPhase('Ringing', 'warn')
+          pushLog(
+            'Incoming call',
+            `Invite from ${payload.caller?.name || 'Unknown caller'} in room ${payload.roomId}.`,
+          )
+          await ensureLocalAudio().catch((err) => {
+            pushLog(
+              'Microphone error',
+              err.message || 'Permission required to answer.',
+            )
+            showToast('Microphone permission required to accept call.')
+          })
+        })
+
+        state.socket.on('call-accepted', async (payload) => {
+          pushLog(
+            'Call accepted',
+            `Answered by ${payload.answeredBy?.name || 'other user'}.`,
+          )
+          setPhase('Connecting')
+          if (state.currentCallLogId) {
+            try {
+              await api(`/call-logs/${state.currentCallLogId}/answer`, {
+                method: 'PATCH',
+              })
+              els.callLogState.textContent = 'Call log marked as answered.'
+            } catch (err) {
+              pushLog(
+                'Call log error',
+                err.message || 'Could not mark as answered.',
+              )
+            }
+          }
+        })
+
+        state.socket.on('call-declined', async (payload) => {
+          pushLog(
+            'Call declined',
+            `${payload.declinedBy?.name || 'Other user'} declined the call.`,
+          )
+          setPhase('Declined', 'bad')
+          await finalizeCallLog('declined')
+          cleanupCall('The remote user declined the call.')
+        })
+
+        state.socket.on('call-ended', async (payload) => {
+          pushLog(
+            'Call ended',
+            `${payload.endedBy?.name || 'Other user'} ended the call.`,
+          )
+          await finalizeCallLog('completed')
+          cleanupCall('The call ended on the remote side.')
+        })
+      }
+
+      async function connectSocket() {
+        if (!state.token) return
+        if (state.socket) state.socket.disconnect()
+
+        await ensureSocketIoClient()
+
+        state.socket = io(backendOrigin, {
+          auth: { token: state.token },
+          transports: ['websocket', 'polling'],
+        })
+        state.socket.on('connect', () => {
+          setSocketState(true)
+          pushLog('Socket connected', `Socket id ${state.socket.id}`)
+        })
+        state.socket.on('disconnect', () => {
+          setSocketState(false)
+          pushLog('Socket disconnected', 'Live signaling stopped.')
+        })
+        state.socket.on('connect_error', (err) => {
+          setSocketState(false)
+          pushLog(
+            'Socket error',
+            err.message || 'Could not connect signaling socket.',
+          )
+          showToast(err.message || 'Socket connection error')
+        })
+
+        bindSocketEvents()
+      }
+
+      async function joinCallRoom(roomId) {
+        if (!state.socket) throw new Error('Socket not connected')
+        if (!roomId) throw new Error('Room id is required')
+        if (state.joinedRoom) return
+
+        await new Promise((resolve, reject) => {
+          state.socket.emit('join', roomId, (res) => {
+            if (res && res.success) {
+              state.joinedRoom = true
+              resolve(true)
+            } else {
+              reject(new Error(res?.error || 'Unable to join call room'))
+            }
+          })
+        })
+
+        updateRoom(roomId)
+        pushLog('Room joined', `Joined room ${roomId}.`)
+      }
+
+      async function createOrReuseDirectRoom(contact) {
+        const peerId = getContactId(contact)
+        if (!peerId) throw new Error('Selected contact has no valid user id.')
+
+        const response = await api('/rooms', {
+          method: 'POST',
+          body: JSON.stringify({
+            participants: [peerId],
+            name: `Audio call with ${contact.username}`,
+            callMode: true,
+          }),
+        })
+        return response.data
+      }
+
+      async function createCallLog(roomId, receiverId) {
+        const response = await api('/call-logs', {
+          method: 'POST',
+          body: JSON.stringify({ roomId, receiverId, callType: 'audio' }),
+        })
+        return response.data
+      }
+
+      async function finalizeCallLog(status = 'completed') {
+        if (!state.currentCallLogId) return
+        try {
+          await api(`/call-logs/${state.currentCallLogId}/end`, {
+            method: 'PATCH',
+            body: JSON.stringify({ status }),
+          })
+        } catch (err) {
+          pushLog(
+            'Call log error',
+            err.message || 'Unable to finalize call log.',
+          )
+        }
+      }
+
+      async function startOutgoingCall() {
+        if (!state.selectedContact) return showToast('Pick a contact first.')
+        if (!state.socket || !state.socket.connected)
+          return showToast('Sign in so socket can connect.')
+
+        try {
+          setPhase('Dialing', 'warn')
+          await ensureLocalAudio()
+
+          const room = await createOrReuseDirectRoom(state.selectedContact)
+          const roomId = room?._id || room?.id || room?.roomId
+          if (!roomId) throw new Error('Could not resolve direct room.')
+
+          const peerId = getContactId(state.selectedContact)
+          if (!peerId) throw new Error('Selected contact has no valid user id.')
+
+          const callLog = await createCallLog(roomId, peerId)
+          setCurrentCallLog(
+            callLog?._id || callLog?.id || '',
+            'Call log created for outgoing call.',
+          )
+          updateRoom(roomId)
+
+          await joinCallRoom(roomId)
+
+          state.socket.emit(
+            'call-user',
+            {
+              roomId,
+              calleeId: peerId,
+              callType: 'audio',
+              callLogId: state.currentCallLogId,
+            },
+            (res) => {
+              if (res && res.success) {
+                pushLog(
+                  'Invite sent',
+                  `Calling ${state.selectedContact.username || 'selected user'}.`,
+                )
+                setPhase('Ringing', 'warn')
+              } else {
+                pushLog('Call error', res?.error || 'Unable to place call.')
+                setPhase('Failed', 'bad')
+                showToast(res?.error || 'Unable to place call')
+              }
+            },
+          )
+        } catch (err) {
+          pushLog('Call start failed', err.message || 'Unable to start call.')
+          setPhase('Failed', 'bad')
+          showToast(err.message || 'Unable to start call')
+        }
+      }
+
+      async function acceptIncomingCall() {
+        if (!state.incomingCall) return
+
+        try {
+          await ensureLocalAudio()
+          const roomId = state.incomingCall.roomId
+          await joinCallRoom(roomId)
+          state.socket.emit('accept-call', {
+            roomId,
+            callerId: state.incomingCall.caller.id,
+            callLogId: state.incomingCall.callLogId || null,
+          })
+
+          state.currentCallLogId =
+            state.incomingCall.callLogId || state.currentCallLogId
+          setCurrentCallLog(state.currentCallLogId, 'Incoming call log loaded.')
+          updateRoom(roomId)
+          els.incomingPanel.classList.remove('show')
+          setPhase('Connecting')
+          pushLog('Call accepted', 'You accepted the incoming call.')
+        } catch (err) {
+          pushLog('Accept failed', err.message || 'Unable to accept call.')
+          setPhase('Failed', 'bad')
+          showToast(err.message || 'Unable to accept call')
+        }
+      }
+
+      async function declineIncomingCall() {
+        if (!state.incomingCall) return
+        const payload = state.incomingCall
+        els.incomingPanel.classList.remove('show')
+        state.incomingCall = null
+
+        if (state.socket && state.socket.connected) {
+          state.socket.emit('decline-call', {
+            roomId: payload.roomId,
+            callerId: payload.caller.id,
+            callLogId: payload.callLogId || null,
+            reason: 'declined',
+          })
+        }
+
+        state.currentCallLogId = payload.callLogId || state.currentCallLogId
+        await finalizeCallLog('declined')
+        cleanupCall('Incoming call declined.')
+      }
+
+      async function endCurrentCall() {
+        if (!state.currentRoomId && !state.currentCallLogId)
+          return showToast('No active call to end.')
+
+        if (state.socket && state.socket.connected && state.currentRoomId) {
+          state.socket.emit('end-call', {
+            roomId: state.currentRoomId,
+            targetUserId:
+              state.incomingCall?.caller?.id ||
+              getContactId(state.selectedContact),
+            callLogId: state.currentCallLogId || null,
+          })
+        }
+
+        await finalizeCallLog('completed')
+        cleanupCall('You ended the call.')
+      }
+
+      async function loadContacts() {
+        if (!state.token) {
+          state.contacts = []
+          renderContacts()
+          return
+        }
+        const response = await api('/users/contacts?mode=call', {
+          method: 'GET',
+        })
+        state.contacts = Array.isArray(response.data) ? response.data : []
+        renderContacts()
+        pushLog(
+          'Contacts loaded',
+          `${state.contacts.length} available contacts.`,
+        )
+        if (!state.selectedContact && state.contacts.length)
+          updateSelectedContact(state.contacts[0])
+      }
+
+      async function login() {
+        const Id = els.loginId.value.trim()
+        const password = els.loginPassword.value.trim()
+        if (!Id || !password) return showToast('Enter user ID and password.')
+
+        const response = await fetch(`${apiBase}/users/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ Id, password }),
+        })
+        const data = await response.json().catch(() => ({}))
+        if (!response.ok || data.success === false)
+          throw new Error(data.message || 'Login failed')
+
+        const payload = data.data || {}
+        state.token = payload.token
+        state.me = payload.user || null
+        localStorage.setItem('opalmer_call_token', state.token)
+        localStorage.setItem('opalmer_call_user', JSON.stringify(state.me))
+
+        updateMeCard()
+        await connectSocket()
+        await loadContacts()
+        pushLog('Login', `${state.me?.username || 'User'} signed in.`)
+        showToast('Signed in successfully.')
+      }
+
+      function restoreSession() {
+        const cachedUser = localStorage.getItem('opalmer_call_user')
+        if (cachedUser) {
+          try {
+            state.me = JSON.parse(cachedUser)
+          } catch (err) {
+            console.warn('Failed to parse cached call user', err)
+            state.me = null
+          }
+        }
+        updateMeCard()
+        if (state.token) {
+          connectSocket().catch((err) => {
+            pushLog(
+              'Socket error',
+              err.message || 'Could not connect signaling socket.',
+            )
+            showToast(err.message || 'Could not connect signaling socket.')
+          })
+        }
+      }
+
+      function logout() {
+        state.token = ''
+        state.me = null
+        state.contacts = []
+        state.selectedContact = null
+        state.currentRoomId = ''
+        state.currentCallLogId = ''
+        state.incomingCall = null
+        localStorage.removeItem('opalmer_call_token')
+        localStorage.removeItem('opalmer_call_user')
+
+        if (state.socket) {
+          state.socket.disconnect()
+          state.socket = null
+        }
+
+        stopLocalAudio()
+        cleanupCall('Session cleared.')
+        updateMeCard()
+        renderContacts()
+        setSocketState(false)
+        setPhase('Idle')
+        showToast('Signed out.')
+      }
+
+      els.loginBtn.addEventListener('click', (e) => {
+        e.preventDefault()
+        login().catch((err) => {
+          pushLog('Login failed', err.message || 'Could not sign in.')
+          showToast(err.message || 'Could not sign in.')
+        })
+      })
+      els.logoutBtn.addEventListener('click', logout)
+      els.startCallBtn.addEventListener('click', () => startOutgoingCall())
+      els.joinRoomBtn.addEventListener('click', async () => {
+        if (!state.currentRoomId)
+          return showToast('Start or accept a call first.')
+        try {
+          await joinCallRoom(state.currentRoomId)
+          showToast('Joined room.')
+        } catch (err) {
+          pushLog('Join failed', err.message || 'Could not join room.')
+          showToast(err.message || 'Could not join room.')
+        }
+      })
+      els.endCallBtn.addEventListener('click', () => endCurrentCall())
+      els.acceptBtn.addEventListener('click', () => acceptIncomingCall())
+      els.declineBtn.addEventListener('click', () => declineIncomingCall())
+      els.acceptInboundBtn.addEventListener('click', () => acceptIncomingCall())
+      els.declineInboundBtn.addEventListener('click', () =>
+        declineIncomingCall(),
+      )
+      els.contactFilter.addEventListener('input', renderContacts)
+
+      restoreSession()
+      renderContacts()
+      setSocketState(false)
+      setPhase('Idle')
+
+      if (state.token) {
+        loadContacts().catch((err) =>
+          pushLog('Contacts error', err.message || 'Could not load contacts.'),
+        )
+      } else {
+        pushLog(
+          'Ready',
+          'Sign in to load contacts and start a one-to-one audio call.',
+        )
+      }
+    </script>
+  </body>
+</html>
