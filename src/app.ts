@@ -19,7 +19,11 @@ const corsOptions = {
     // allow requests with no origin (like mobile apps / postman)
     if (!origin) return callback(null, true);
     const envOrigin = process.env.CORS_ORIGIN;
-    if (allowedOrigins.includes(origin) || (envOrigin && origin === envOrigin)) {
+    if (
+      allowedOrigins.includes(origin) || 
+      (envOrigin && origin === envOrigin) ||
+      origin.endsWith(".vercel.app") // Automatically allow Vercel frontends
+    ) {
       callback(null, true);
     } else {
       callback(new Error("CORS not allowed"));
