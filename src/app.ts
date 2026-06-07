@@ -8,10 +8,12 @@ const app = express();
 // When credentials are required, browsers reject wildcard origins (`*`).
 // Reflect the request origin instead so credentials can be used safely.
 const allowedOrigins = [
-  "http://localhost:5000",
-  "http://localhost:3001",
-  "http://127.0.0.1:5500",
-  "https://admin.classpulse.info",
+  // "http://localhost:5000",
+  // "http://localhost:3001",
+  // "http://127.0.0.1:5500",
+  // "https://admin.classpulse.info",
+  "http://72.62.185.116:3000", // Your public frontend IP
+  "http://localhost:3000", // For local development
 ];
 
 const corsOptions = {
